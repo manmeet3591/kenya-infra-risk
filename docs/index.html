@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kenya Infrastructure Risk</title>
+<meta name="description" content="Multi-hazard risk map for Kenya's critical energy and lifeline infrastructure: wind, extreme rainfall, heat and drought, 2001-2024.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="style.css?v=2">
+</head>
+<body>
+<header class="top">
+  <div>
+    <h1>Kenya Critical Infrastructure Risk</h1>
+    <p class="sub">Multi-hazard exposure of energy and lifeline assets · county level · climate record <span id="yrs">2001–2024</span></p>
+  </div>
+  <nav class="tabs" role="tablist">
+    <button role="tab" aria-selected="true" data-view="map">Map</button>
+    <button role="tab" aria-selected="false" data-view="table">Table</button>
+    <button role="tab" aria-selected="false" data-view="method">Method</button>
+  </nav>
+</header>
+
+<main id="app">
+  <aside class="controls" aria-label="Controls">
+    <section>
+      <h2>Map shows</h2>
+      <div class="seg" id="mode">
+        <button data-mode="risk" class="on">Risk</button>
+        <button data-mode="hazard">Hazard</button>
+        <button data-mode="exposure">Exposure</button>
+      </div>
+      <p class="hint" id="modeHint"></p>
+    </section>
+    <section>
+      <h2>Hazard weights</h2>
+      <div id="weights"></div>
+      <button class="link" id="resetW">Reset to equal weights</button>
+    </section>
+    <section>
+      <h2>Assets</h2>
+      <div id="cats"></div>
+      <label class="chk"><input type="checkbox" id="showLines" checked> Power lines (OSM)</label>
+      <label class="chk"><input type="checkbox" id="showGrid"> Hazard grid (~55 km cells)</label>
+    </section>
+  </aside>
+
+  <section class="view" id="view-map">
+    <div id="map" role="region" aria-label="Map of Kenya"></div>
+    <div class="legend" id="legend"></div>
+  </section>
+
+  <aside class="detail" aria-label="County detail">
+    <div id="kpis" class="kpis"></div>
+    <div id="county"></div>
+    <h2 class="mt">Highest-risk counties</h2>
+    <ol id="rank" class="rank"></ol>
+  </aside>
+
+  <section class="view hidden" id="view-table">
+    <div class="tablewrap"><table id="tbl"></table></div>
+  </section>
+
+  <section class="view hidden prose" id="view-method">
+    <h2>Method</h2>
+    <p><b>Risk = √(Hazard × Exposure)</b>, a geometric mean, so a county needs both hazard and assets to rank high. Each score runs from 0 to 100.</p>
+    <h3>Hazard (0–1 percentile among Kenyan grid cells)</h3>
+    <ul>
+      <li><b>Wind</b>: median annual maximum of daily max 10 m wind, and mean days per year ≥ <span class="t-wind"></span> m/s.</li>
+      <li><b>Extreme rain / flood</b>: median annual maximum 1-day rainfall (daily values over 200 mm in a ~55 km cell are treated as data artefacts), and mean days per year ≥ <span class="t-rain"></span> mm.</li>
+      <li><b>Heat</b>: mean days per year with Tmax ≥ <span class="t-heat"></span> °C, and the trend in annual mean Tmax (°C/decade).</li>
+      <li><b>Drought</b>: share of long rains (MAM) and short rains (OND) seasons with totals below <span class="t-dro"></span>% of their mean. This matters for hydropower and for cooling water.</li>
+    </ul>
+    <p>The composite hazard is the weighted mean of the four, using the sliders. County values average the grid cells whose centre falls in the county. Small counties without a cell centre (e.g. Nairobi, Mombasa) take the nearest cell.</p>
+    <h3>Exposure</h3>
+    <p>Weighted count of critical assets in the county plus high-voltage (≥132 kV) line length, ranked among counties (0–1). Weights: power plant 5, fuel depot 4, port 4, substation 3, airport 3, hospital 2, water/dam 2, telecom 1, and 1 per 50 km of HV line.</p>
+    <h3>Data</h3>
+    <ul id="sources"></ul>
+    <h3>Limitations</h3>
+    <ul>
+      <li>MERRA-2 cells are ~55 km, which smooths local extremes. Thresholds are set to match, and the AI-downscaled 1 km fields will replace these in the next version.</li>
+      <li>OSM coverage of Kenyan infrastructure is uneven. Missing assets lower exposure. Utility asset registers (KPLC, KETRACO, KenGen) would fix this.</li>
+      <li>Riverine and coastal flood depth, landslides and lightning aren't modelled yet; extreme rainfall is a proxy.</li>
+      <li>This is a screening tool, not an engineering assessment.</li>
+    </ul>
+  </section>
+</main>
+<footer class="foot">Disaster Science Operations Center · prototype · data © OpenStreetMap contributors, NASA POWER, geoBoundaries · built <span id="built"></span></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="app.js?v=3"></script>
+</body>
+</html>
